@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import qs from 'qs';
+import history from './history';
+
 
 type LoginResponse = {
   access_token: string;
@@ -66,11 +68,9 @@ export const getAuthData = () =>{
 // Add a request interceptor
 axios.interceptors.request.use(
     function (config) {
-      console.log('interceptor antes da requisicao');
       return config;
     },
     function (error) {
-      console.log('interceptor  erro na requisicao');
       return Promise.reject(error);
     }
   );
@@ -78,11 +78,12 @@ axios.interceptors.request.use(
   // Add a response interceptor
   axios.interceptors.response.use(
     function (response) {
-      console.log('interceptor resposta com sucesso');
       return response;
     },
     function (error) {
-      console.log('interceptor resposta com erro');
+      if(error.response.status === 401 || error.response.this.status === 403){
+        history.push('/admin/auth');
+      }
       return Promise.reject(error);
     }
   )
