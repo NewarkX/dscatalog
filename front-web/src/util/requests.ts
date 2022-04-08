@@ -1,7 +1,15 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import qs from 'qs';
 import history from './history';
+import jwtDecode from 'jwt-decode';
 
+type Role = 'ROLE_OPERATOR' | 'ROLE_ADMIN';
+
+type TokenData = {
+  exp: number;
+  user_name: string;
+  authorities: Role[];
+}
 
 type LoginResponse = {
   access_token: string;
@@ -87,3 +95,12 @@ axios.interceptors.request.use(
       return Promise.reject(error);
     }
   )
+
+  export const getTokenData = () : TokenData | undefined => {
+    try{
+      return jwtDecode(getAuthData().access_token) as TokenData;
+    }
+    catch(error){
+      return undefined;
+    }
+  }
