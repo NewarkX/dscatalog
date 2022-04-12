@@ -71,14 +71,14 @@ function NavBar() {
           </ul>
         </div>
 
-        <div>
+        <div className="nav-login-logout" >
           {authData.authenticated ? (
             <>
-            <span>{authData.tokenData?.user_name}</span>
-            <a href="" onClick={handleLogoutClick}>logout</a>
+            <span className="nav-username" >{authData.tokenData?.user_name}</span>
+            <a href="" onClick={handleLogoutClick}>LOGOUT</a>
             </>
           ) : (
-            <Link to="/admin/auth">login</Link>
+            <Link to="/admin/auth">LOGIN</Link>
           )}
         </div>
 
