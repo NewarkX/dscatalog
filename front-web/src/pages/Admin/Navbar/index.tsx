@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { hasAnyHoles } from 'util/requests';
+import { hasAnyHoles } from 'util/auth';
 import './styles.css';
 
 const Navbar: React.FC = () => {

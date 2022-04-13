@@ -1,29 +1,10 @@
+import { getAuthData } from './storage';
 import axios, { AxiosRequestConfig } from 'axios';
 import qs from 'qs';
 import history from './history';
-import jwtDecode from 'jwt-decode';
-
-export type Role = 'ROLE_OPERATOR' | 'ROLE_ADMIN';
-
-export type TokenData = {
-  exp: number;
-  user_name: string;
-  authorities: Role[];
-}
-
-type LoginResponse = {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  scope: string;
-  userFirstName: string;
-  userId: number;
-};
 
 export const BASE_URL =
   process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
-
-const tokenKey = 'authData';
 
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'dscatalog';
 const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET ?? 'dscatalog123';
@@ -58,71 +39,32 @@ export const requestBackend = (config: AxiosRequestConfig) => {
     ? {
         ...config.headers,
 
-        Authorization: "Bearer " + getAuthData().access_token
-    } : config.headers;
+        Authorization: 'Bearer ' + getAuthData().access_token,
+      }
+    : config.headers;
 
-    return axios({...config,baseURL: BASE_URL,headers});   
-}
-
-export const saveAuthData = (obj : LoginResponse) => {
-    localStorage.setItem(tokenKey, JSON.stringify(obj));
-}
-
-export const getAuthData = () =>{
-    const str = localStorage.getItem(tokenKey) ?? '{}';
-    return JSON.parse(str) as LoginResponse;
-}
-
-export const removeAuthData = () => {
-  localStorage.removeItem(tokenKey);
-}
+  return axios({ ...config, baseURL: BASE_URL, headers });
+};
 
 // Add a request interceptor
 axios.interceptors.request.use(
-    function (config) {
-      return config;
-    },
-    function (error) {
-      return Promise.reject(error);
-    }
-  );
-  
-  // Add a response interceptor
-  axios.interceptors.response.use(
-    function (response) {
-      return response;
-    },
-    function (error) {
-      if(error.response.status === 401){
-        history.push('/admin/auth');
-      }
-      return Promise.reject(error);
-    }
-  )
-
-  export const getTokenData = () : TokenData | undefined => {
-    try{
-      return jwtDecode(getAuthData().access_token) as TokenData;
-    }
-    catch(error){
-      return undefined;
-    }
+  function (config) {
+    return config;
+  },
+  function (error) {
+    return Promise.reject(error);
   }
+);
 
-  export const isAuthenticated = () : boolean => {
-    const tokenData = getTokenData();
-    return (tokenData && tokenData.exp * 1000 > Date.now()) ? true : false;
-  }
-
-  export const hasAnyHoles= (roles: Role[]) : boolean => {
-    if(roles.length === 0){
-      return true;
+// Add a response interceptor
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    if (error.response.status === 401) {
+      history.push('/admin/auth');
     }
-
-    const tokenData = getTokenData();
-
-    if(tokenData !== undefined){
-      return roles.some(role => tokenData.authorities.includes(role));
-    }
-    return false;
+    return Promise.reject(error);
   }
+);
