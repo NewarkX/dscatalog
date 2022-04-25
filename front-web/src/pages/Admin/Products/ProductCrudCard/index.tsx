@@ -1,7 +1,8 @@
-import './styles.css';
 import ProductPrice from 'components/ProductPrice';
 import { Product } from 'types/product';
 import CategoryBadge from '../CategoryBadge';
+
+import './styles.css';
 
 type Props = {
   product: Product;
@@ -23,6 +24,14 @@ const ProductCrudCard = ({ product }: Props) => {
             <CategoryBadge name={category.name} key={category.id} />
           ))}
         </div>
+      </div>
+      <div className="product-crud-card-buttons-container">
+        <button className='btn-outline-danger product-crud-card-button product-crud-card-button-first' >
+            EXCLUIR
+        </button>
+        <button className='btn-outline-secondary product-crud-card-button' >
+            EDITAR
+        </button>
       </div>
     </div>
   );
