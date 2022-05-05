@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useHistory, useParams } from 'react-router-dom';
 import Select from 'react-select';
 import { Category } from 'types/category';
@@ -9,73 +9,70 @@ import { Product } from 'types/product';
 import { requestBackend } from 'util/requests';
 import './styles.css';
 
-  
 type UrlParams = {
   productId: string;
 };
 
 const Form = () => {
-  
   const { productId } = useParams<UrlParams>();
 
-  const isEditing = productId !== 'create'; 
+  const isEditing = productId !== 'create';
 
   const history = useHistory();
 
-  const [selectCategories,setSelectCategories] = useState<Category[]>([]);
+  const [selectCategories, setSelectCategories] = useState<Category[]>([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue
+    setValue,
+    control,
   } = useForm<Product>();
 
   useEffect(() => {
-    requestBackend({url: '/categories'})
-    .then(response => {
+    requestBackend({ url: '/categories' }).then((response) => {
       setSelectCategories(response.data.content);
-    })
-  },[]);
+    });
+  }, []);
 
   useEffect(() => {
-    if(isEditing){
-      requestBackend({url:`/products/${productId}`})
-      .then((response) => {
+    if (isEditing) {
+      requestBackend({ url: `/products/${productId}` }).then((response) => {
         const product = response.data as Product;
-        setValue('name',product.name);
-        setValue('price',product.price);
-        setValue('description',product.description);
-        setValue('imgUrl',product.imgUrl);
-        setValue('categories',product.categories);
+        setValue('name', product.name);
+        setValue('price', product.price);
+        setValue('description', product.description);
+        setValue('imgUrl', product.imgUrl);
+        setValue('categories', product.categories);
       });
     }
-  }, [isEditing,productId,setValue]);
+  }, [isEditing, productId, setValue]);
 
   const onSubmit = (formData: Product) => {
+    const data = {
+      ...formData,
+      imgUrl: isEditing
+        ? formData.imgUrl
+        : 'https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/1-big.jpg',
+      categories: isEditing ? formData.categories : [{ id: 1, name: '' }],
+    };
 
-  const data = { ...formData,
-    imgUrl: isEditing ? formData.imgUrl :  
-    'https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/1-big.jpg',
-    categories: isEditing ? formData.categories :
-    [ {id:1,name: ""} ],
-  };  
-
-  const config: AxiosRequestConfig = {
-    method: isEditing ? 'PUT' : 'POST',
-    url: isEditing ? `products/${productId}` : '/products',
-    data,
-    withCredentials: true,
-  };
+    const config: AxiosRequestConfig = {
+      method: isEditing ? 'PUT' : 'POST',
+      url: isEditing ? `products/${productId}` : '/products',
+      data,
+      withCredentials: true,
+    };
 
     requestBackend(config).then(() => {
-      history.push("/admin/products");
+      history.push('/admin/products');
     });
   };
 
   const handleCancel = () => {
-    history.push("/admin/products");
-  }
+    history.push('/admin/products');
+  };
 
   return (
     <div className="product-crud-container">
@@ -101,17 +98,30 @@ const Form = () => {
                 </div>
               </div>
 
-
               <div className="margin-bottom-30">
-                <Select
-                  options={selectCategories}
-                  classNamePrefix='product-crud-select'
-                  isMulti
-                  getOptionLabel={(category: Category) => category.name}
-                  getOptionValue={(category: Category) => String(category.id)}
+                <Controller
+                  name="categories"
+                  rules={{ required: true }}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={selectCategories}
+                      classNamePrefix="product-crud-select"
+                      isMulti
+                      getOptionLabel={(category: Category) => category.name}
+                      getOptionValue={(category: Category) =>
+                        String(category.id)
+                      }
+                    />
+                  )}
                 />
+                {errors.categories && (
+                  <div className="invalid-feedback d-block">
+                    Campo obrigatório
+                  </div>
+                )}
               </div>
-
 
               <div className="margin-bottom-30">
                 <input
@@ -150,8 +160,9 @@ const Form = () => {
             </div>
           </div>
           <div className="product-crud-buttons-container">
-            <button className="btn btn-outline-danger product-crud-button"
-            onClick={handleCancel}
+            <button
+              className="btn btn-outline-danger product-crud-button"
+              onClick={handleCancel}
             >
               CANCELAR
             </button>
