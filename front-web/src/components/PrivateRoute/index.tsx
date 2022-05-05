@@ -23,7 +23,9 @@ const PrivateRoute = ({ children, path, roles = [] }: Props) => {
         ) : !hasAnyHoles(roles) ? (
           <Redirect to="/admin/products" />
         ) : (
-          children
+          <>
+          {children}
+          </>
         )
       }
     />
