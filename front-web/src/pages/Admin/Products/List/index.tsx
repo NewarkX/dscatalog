@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Product } from 'types/product';
 import { SpringPage } from 'types/vendor/spring';
 import { requestBackend } from 'util/requests';
+import Pagination from 'components/Pagination';
 
 import './styles.css';
 
@@ -48,6 +49,7 @@ const List = () => {
           </div>
         ))}
       </div>
+      <Pagination />
     </div>
   );
 };

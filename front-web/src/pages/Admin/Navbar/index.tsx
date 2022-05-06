@@ -6,7 +6,7 @@ import './styles.css';
 const Navbar: React.FC = () => {
   return (
     <nav className="admin-nav-container">
-      <ul>
+      <ul className='admin-nav-items-container' >
         <li>
           <NavLink to="/admin/products" className="admin-nav-item">
             <p>Produtos</p>
