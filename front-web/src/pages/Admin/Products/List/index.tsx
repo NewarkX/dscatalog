@@ -9,6 +9,7 @@ import Pagination from 'components/Pagination';
 
 import './styles.css';
 import { useCallback } from 'react';
+import ProductFilter from 'components/ProductFilter';
 
 type ControlComponentsData = {
   activePage: number;
@@ -54,7 +55,7 @@ const List = () => {
           </button>
         </Link>
 
-        <div className="base-card product-filter-container">search bar</div>
+        <ProductFilter />
       </div>
       <div className="row">
         {page?.content.map((product) => (
